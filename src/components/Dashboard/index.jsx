@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCountries } from '../../store/countriesSlice';
 import {
     AppBar,
     Toolbar,
@@ -16,30 +18,19 @@ import {
 import Carousel from "react-material-ui-carousel";
 import Footer from "./Footer";
 const Dashboard = () => {
+    const dispatch = useDispatch();
     const [region, setRegion] = useState("All");
     const [visibleCount, setVisibleCount] = useState(12);
-    const [countriesData, setCountriesData] = useState([])
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const countriesData = useSelector((state) => state.countries.data);
+    const loading = useSelector((state) => state.countries.loading);
+    const error = useSelector((state) => state.countries.error);
     const [currentIndex, setCurrentIndex] = useState(0);
     const handleChange = (index) => setCurrentIndex(index);
+
     useEffect(() => {
-        const fetchCountries = async () => {
-            try {
-                const response = await fetch("https://restcountries.com/v2/all?fields=name,region,flag");
-                if (!response.ok) {
-                    throw new Error("Failed to fetch countries");
-                }
-                const data = await response.json();
-                setCountriesData(data);
-                setLoading(false);
-            } catch (err) {
-                setError(err.message);
-                setLoading(false);
-            }
-        };
-        fetchCountries();
-    }, []);
+        dispatch(fetchCountries());
+    }, [dispatch]);
+
     const filteredCountries =
         region === "All"
             ? countriesData
@@ -141,9 +132,9 @@ const Dashboard = () => {
                                     height: "48px",
                                     borderRadius: 2,
                                     textAlign: "center",
-                                    backgroundColor: "#3C3C3C", // Correct way to set background color
+                                    backgroundColor: "#3C3C3C",
                                     "&:hover": {
-                                        backgroundColor: "#2E2E2E", // Optional: Customize hover color
+                                        backgroundColor: "#2E2E2E",
                                     },
                                 }}
                                 onClick={handleLoadMore}
